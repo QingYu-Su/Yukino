@@ -91,15 +91,15 @@ namespace Yukino
         bool has_header(const std::string &key) const;
 
         /**
-         * @brief 获取请求参数中的某个值
+         * @brief 获取路由参数中的某个值
          * 
-         * @param key 请求参数的键
+         * @param key 路由参数的键
          * @return const std::string& 请求参数的值
          */
         const std::string &param(const std::string &key) const;
 
         /**
-         * @brief 获取请求参数中的某个值，并将其转换为指定类型
+         * @brief 获取路由参数中的某个值，并将其转换为指定类型
          * 
          * @tparam T 要转换的目标类型
          * @param key 请求参数的键
@@ -284,7 +284,7 @@ namespace Yukino
         HttpReq &operator=(HttpReq&& other);
 
     private:
-        // 定义一个类型别名 HeaderMap，用于表示 HTTP 响应头的映射结构
+        // 定义一个类型别名 HeaderMap，用于表示 HTTP请求头部的映射结构，并且键值通过MapStringCaseLess使其不区分大小写
         using HeaderMap = std::map<std::string, std::vector<std::string>, MapStringCaseLess>;
 
         http_content_type content_type_; // 请求的内容类型
@@ -454,14 +454,17 @@ public:
     // 重定向
     void Redirect(const std::string& location, int status_code);
 
-    // 计算任务
+    // 在指定的计算队列中执行计算任务
     template<class FUNC, class... ARGS>
-    void Compute(int compute_queue_id, FUNC&& func, ARGS&&... args)
+    void HttpResp::Compute(int compute_queue_id, FUNC&& func, ARGS&&... args)
     {
+        // 创建一个计算任务
         WFGoTask *go_task = WFTaskFactory::create_go_task(
-                "Yukino" + std::to_string(compute_queue_id),
-                std::forward<FUNC>(func),
-                std::forward<ARGS>(args)...);
+                "Yukino" + std::to_string(compute_queue_id), // 任务名称
+                std::forward<FUNC>(func), // 通过完美转发传递计算函数
+                std::forward<ARGS>(args)...); // 通过完美转发传递函数参数
+
+        // 将计算任务添加到任务列表中
         this->add_task(go_task);
     }
 
