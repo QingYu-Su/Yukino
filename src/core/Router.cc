@@ -91,11 +91,11 @@ void Router::print_routes() const
             if (CodeUtil::is_url_encode(rv.route))
             {
                 // 如果路由路径是URL编码的，解码后打印
-                fprintf(stderr, "[WFREST] %s\t%s\n", verb_to_str(verb), CodeUtil::url_decode(rv.route).c_str());
+                fprintf(stderr, "[YUKINO] %s\t%s\n", verb_to_str(verb), CodeUtil::url_decode(rv.route).c_str());
             } else
             {
                 // 直接打印路由路径
-                fprintf(stderr, "[WFREST] %s\t%s\n", verb_to_str(verb), rv.route.c_str());
+                fprintf(stderr, "[YUKINO] %s\t%s\n", verb_to_str(verb), rv.route.c_str());
             }
         }
     }

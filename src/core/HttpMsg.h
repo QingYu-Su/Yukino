@@ -456,7 +456,7 @@ public:
 
     // 在指定的计算队列中执行计算任务
     template<class FUNC, class... ARGS>
-    void HttpResp::Compute(int compute_queue_id, FUNC&& func, ARGS&&... args)
+    void Compute(int compute_queue_id, FUNC&& func, ARGS&&... args)
     {
         // 创建一个计算任务
         WFGoTask *go_task = WFTaskFactory::create_go_task(
