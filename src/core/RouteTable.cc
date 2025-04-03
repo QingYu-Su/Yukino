@@ -1,5 +1,6 @@
 #include <queue>
 #include "RouteTable.h"
+#include "spdlog/spdlog.h" 
 
 using namespace Yukino;
 
@@ -91,7 +92,7 @@ RouteTableNode::iterator RouteTableNode::find(const StringPiece &route, size_t c
         if (it != children_.end())
         {
             if (it->second->verb_handler_.verb_handler_map.empty())
-                fprintf(stderr, "handler nullptr"); // 如果子节点没有处理器，输出错误信息
+                spdlog::error("[YUKINO] handler nullptr");
             return iterator{it->second, route, it->second->verb_handler_}; // 返回通配符子节点的迭代器
         }
     }
@@ -129,7 +130,7 @@ RouteTableNode::iterator RouteTableNode::find(const StringPiece &route, size_t c
             return it2; // 如果找到匹配的路由，返回迭代器
     }
 
-    // 如果有子节点是路径参数（如 `{name}`），选择它
+    // 如果有子节点是路径参数（如 `{name}`）或通配符，选择它
     for (auto &kv : children_)
     {
         StringPiece param(kv.first);
@@ -162,7 +163,7 @@ RouteTableNode::iterator RouteTableNode::find(const StringPiece &route, size_t c
 
 void RouteTableNode::print_node_arch()
 {
-    // 使用队列进行广度优先遍历
+    // 使用队列进行层序遍历打印节点
     std::queue<std::pair<StringPiece, RouteTableNode *>> node_queue;
     StringPiece root("/");
     node_queue.push({root, this}); // 将根节点加入队列
@@ -170,9 +171,8 @@ void RouteTableNode::print_node_arch()
 
     while (!node_queue.empty())
     {
-        fprintf(stderr, "level %d:\t", level); // 打印当前层级
-        size_t queue_size = node_queue.size(); // 当前队列大小
-        fprintf(stderr, "(size : %zu)\t", queue_size);
+        size_t queue_size = node_queue.size(); 
+        spdlog::info("[YUKINO] level {0}: (size : {1})", level, queue_size);
 
         for (size_t i = 0; i < queue_size; i++)
         {
@@ -181,25 +181,23 @@ void RouteTableNode::print_node_arch()
             node_queue.pop();
 
             // 打印当前节点的路径
-            fprintf(stderr, "[%s :", node.first.as_string().c_str());
+            spdlog::info("[YUKINO] current node: {0}", node.first.as_string().c_str());
 
             // 获取当前节点的子节点
             const std::map<StringPiece, RouteTableNode *> &children = node.second->children_;
 
             if (children.empty())
-                fprintf(stderr, "\tNULL"); // 如果没有子节点，打印 NULL
+                spdlog::info("[YUKINO] No Children");
 
             // 遍历子节点并打印
             for (const auto &pair : children)
             {
-                fprintf(stderr, "\t%s", pair.first.as_string().c_str());
+                spdlog::info("[YUKINO] child node: {0}", pair.first.as_string().c_str());
                 // 将子节点加入队列
                 node_queue.push({pair.first, pair.second});
             }
-            fprintf(stderr, "]"); // 结束当前节点的打印
         }
         level++; // 层级加1
-        fprintf(stderr, "\n"); // 换行
     }
 }
 

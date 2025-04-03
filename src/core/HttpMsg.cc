@@ -15,6 +15,7 @@
 #include "FileUtil.h"
 #include "HttpServerTask.h"
 #include "CodeUtil.h"
+#include "spdlog/spdlog.h" 
 
 using namespace protocol;
 
@@ -479,7 +480,7 @@ bool HttpReq::has_query(const std::string &key) const
     return query_params_.find(key) != query_params_.end(); // 如果存在该键，返回 true
 }
 
-// 填充 HTTP 请求的内容类型
+// 如果内容类型是 multipart/form-data，则填充multi_part_的边界字符串
 void HttpReq::fill_content_type()
 {
     // 获取请求头中的 Content-Type 字段
@@ -709,7 +710,7 @@ void HttpResp::String(MultiPartEncoder *encoder)
     // 创建一个字符串对象用于存储表单内容
     std::string *content = new std::string;
 
-    // 将内容对象设置为 SeriesWork 的上下文
+    // 将内容对象设置为 SeriesWork 的上下文（主要是方便创建异步文件读取任务时，可以写入到content中）
     series->set_context(content);
 
     // 设置回调函数，在任务完成后释放资源
@@ -719,7 +720,11 @@ void HttpResp::String(MultiPartEncoder *encoder)
         delete static_cast<std::string *>(series->get_context()); // 释放内容对象
     });
 
-    // 获取表单参数列表
+    // 获取表单参数列表，其参数列表如下所示
+    // boundary
+    // Content-Disposition: form-data; name="abc"; filename="test.txt"
+    // Content-Type: type
+    // value
     const MultiPartEncoder::ParamList &param_list = encoder->params();
     int param_idx = 0; // 参数索引
     for(const auto &param : param_list)
@@ -750,13 +755,17 @@ void HttpResp::String(MultiPartEncoder *encoder)
         this->append_output_body_nocopy(content->c_str(), content->size());
     }
 
+    // 获取文件参数列表，其参数列表如下所示
+    // boundary
+    // Content-Disposition: form-data; name="abc"
+    // value
     size_t file_idx = 0; // 文件索引
     for(const auto &file : file_list)
     {
         // 检查文件是否存在
         if(!PathUtil::is_file(file.second))
         {
-            fprintf(stderr, "[Error] Not a File : %s\n", file.second.c_str());
+            spdlog::error("[YUKINO] Not a File : {}", file.second.c_str());
             continue;
         }
 
@@ -765,7 +774,7 @@ void HttpResp::String(MultiPartEncoder *encoder)
         int ret = FileUtil::size(file.second, &file_size);
         if (ret != StatusOK)
         {
-            fprintf(stderr, "[Error] Invalid File : %s\n", file.second.c_str());
+            spdlog::error("[YUKINO] Invalid File : {}", file.second.c_str());
             continue;
         }
 
@@ -788,7 +797,7 @@ void HttpResp::String(MultiPartEncoder *encoder)
                     std::string *content = static_cast<std::string *>(series->get_context());
                     if (pread_task->get_state() != WFT_STATE_SUCCESS || ret < 0)
                     {
-                        fprintf(stderr, "Read %s Error\n", file.second.c_str());
+                        spdlog::error("[YUKINO] Read {} Error", file.second.c_str());
                     } 
                     else
                     {
@@ -1045,7 +1054,7 @@ void push_func(WFTimerTask *push_task)
     // 检查是否保持连接或是否已设置关闭标志
     if (!req->is_keep_alive() || server_task->close_flag())
     {
-        fprintf(stderr, "Close the connection\n");
+        spdlog::error("[YUKINO] Close the connection");
         return;
     }
 
@@ -1144,11 +1153,13 @@ void HttpResp::Push(const std::string &cond_name, const PushFunc &push_cb)
 {
     // 调用重载版本，提供默认的错误回调函数
     this->Push(cond_name, push_cb, [] {
-        fprintf(stderr, "Connection has lost...\n");
+        spdlog::error("[YUKINO] Connection has lost...");
     });
 }
 
 // 推送数据到客户端（提供推送回调函数和错误回调函数）
+// 通过定时器和条件任务去推送数据，如果想推送数据，直接发送条件变量即可
+// 推送回调函数是用来获取数据的，传入一个字符串参数，然后用户需要给这个字符串添加数据，然后推送函数会自动调用该函数去获取数据
 void HttpResp::Push(const std::string &cond_name, const PushFunc &push_cb, const PushErrorFunc &err_cb)
 {
     // 获取当前的 HttpServerTask 对象

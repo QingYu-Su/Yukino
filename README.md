@@ -4,11 +4,13 @@
 
 # 项目特性
 1. 基于[Sogou C++ Workflow](https://github.com/sogou/workflow)实现，可以搭建出高性能且完全异步的Web框架，方便用户使用。
+2. 使用spdlog库记录运行日志，包括调试信息，警告信息和错误信息，便于系统监控与故障排查。
 
 # 项目依赖
 
 - Linux，内核版本 >= 6.0
 - workflow, 版本 >= 0.9.9
+- spdlog，版本 >= 1.15.2
 - Cmake，版本 >= 3.6
 - zlib1g-dev
 - libssl-dev
@@ -21,7 +23,7 @@
 
 1. 安装系统依赖
     ```
-    pacman -S base-devel cmake zlib openssl gtest
+    pacman -S base-devel cmake zlib openssl gtest spdlog
     ```
 2. 安装workflow
     ```

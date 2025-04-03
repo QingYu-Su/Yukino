@@ -10,6 +10,7 @@
 #include "Router.h"
 #include "ErrorCode.h"
 #include "CodeUtil.h"
+#include "spdlog/spdlog.h" 
 
 using namespace Yukino;
 
@@ -169,7 +170,7 @@ void HttpServer::Static(const char *relative_path, const char *root)
     if(ret != StatusOK)
     {
         // 如果服务失败，打印错误信息
-        fprintf(stderr, "[YUKINO] Error : %s dose not exists\n", root);
+        spdlog::error("[YUKINO] {} dose not exists", root);
         return;
     }
     // 将静态文件服务的蓝图添加到服务器中
@@ -225,7 +226,7 @@ HttpServer &HttpServer::track()
         Timestamp current_time = Timestamp::now();
         std::string fmt_time = current_time.to_format_str();
         // 打印请求和响应信息
-        fprintf(stderr, "[YUKINO] %s | %s | %s : %d | %s | \"%s\" | -- \n",
+        spdlog::info("[YUKINO] {0} | {1} | {2} : {3} | {4} | \"{5}\" | --",
                     fmt_time.c_str(),
                     resp->get_status_code(),
                     task->peer_addr().c_str(),

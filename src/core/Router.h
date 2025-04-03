@@ -36,7 +36,7 @@ public:
     // 路由和HTTP请求方法的结构体
     struct RouteVerb
     {
-        std::string route; // 路由路径
+        std::string route; // 路由路径（服务端注册的路径）
         mutable std::set<Verb> verbs; // 支持的HTTP请求方法集合
         // 自定义比较函数，用于在set中排序
         bool operator()(const RouteVerb& l, const RouteVerb& r) const

@@ -610,13 +610,13 @@ public:
     // 使用 TrackFunc 类型的跟踪函数
     using TrackFunc = std::function<void(HttpTask *server_task)>;
 
-    // 设置跟踪函数（无参数版本）
+    // 设置跟踪函数（无参数版本），用来打印日志
     HttpServer &track();
 
-    // 设置跟踪函数（接受 TrackFunc 类型的引用）
+    // 设置跟踪函数（接受 TrackFunc 类型的引用），它会在HttpServerTask完成时被调用
     HttpServer &track(const TrackFunc &track_func);
 
-    // 设置跟踪函数（接受 TrackFunc 类型的右值引用）
+    // 设置跟踪函数（接受 TrackFunc 类型的右值引用），它会在HttpServerTask完成时被调用
     HttpServer &track(TrackFunc &&track_func);
 
     // 打印路由树结构（用于测试）

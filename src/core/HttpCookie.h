@@ -57,14 +57,14 @@ public:
     { return (!key_.empty()) && (!value_.empty()); }
 
     /**
-     * @brief 将 Cookie 的内容转换为字符串。
+     * @brief 将服务端的Cookie内容转换为字符串，如“sessionId=abc123; Expires=Wed, 21 Oct 2025 07:28:00 GMT; Path=/; HttpOnly”
      *
      * @return std::string Cookie 的字符串表示。
      */
     std::string dump() const;
 
     /**
-     * @brief 将 Cookie 字符串分割为键值对。
+     * @brief 将客户端发送的Cookie字符串分割为多个Cookie键值对,如“sessionId=abc123; username=johndoe”
      *
      * @param cookie_piece 包含 Cookie 内容的 StringPiece。
      * @return std::map<std::string, std::string> 键值对映射。

@@ -160,7 +160,7 @@ namespace Yukino
         { return route_match_path_; }
 
         /**
-         * @brief 获取完整的路由路径
+         * @brief 获取服务端注册完整的路由路径
          * 
          * @return const std::string& 完整的路由路径
          */
@@ -168,7 +168,7 @@ namespace Yukino
         { return route_full_path_; }
 
         /**
-         * @brief 获取当前请求的路径
+         * @brief 获取客户端当前请求的路径
          * 
          * @return std::string 当前请求的路径
          */
@@ -192,7 +192,7 @@ namespace Yukino
 
     public:
         /**
-         * @brief 填充内容类型
+         * @brief 如果内容类型是 multipart/form-data，则填充multi_part_的边界字符串
          */
         void fill_content_type();
 
@@ -537,22 +537,9 @@ private:
 };
 
 // 定义一个类型别名 HttpTask，表示基于 HttpReq 和 HttpResp 的网络任务。
-// HttpReq 是 HTTP 请求对象，封装了请求的相关信息；
-// HttpResp 是 HTTP 响应对象，封装了响应的相关操作。
-// 通过定义 HttpTask，可以简化代码中对 WFNetworkTask<HttpReq, HttpResp> 的使用，
-// 使其更加直观和易读，便于在异步网络编程中处理 HTTP 请求和响应。
 using HttpTask = WFNetworkTask<HttpReq, HttpResp>;
 
-// 定义一个内联函数 sse_signal，用于通过条件变量名称发送信号。
-// 参数：
-// - cond_name：条件变量的名称，用于标识特定的条件变量。
-// 功能：
-// - 调用 WFTaskFactory::signal_by_name 方法，根据条件变量名称发送信号。
-// - 传递的 NULL 参数可能表示没有额外的数据需要传递，或者是一个默认的信号值。
-// 使用场景：
-// - 该函数可能用于服务器端事件（Server-Sent Events, SSE）或其他基于条件变量的异步通知机制。
-// - 在 HTTP 服务中，当某个条件满足时（如数据更新或任务完成），可以通过调用 sse_signal 向客户端发送通知。
-// - 客户端可以通过监听这些信号来触发相应的操作，例如更新页面内容或重新请求数据。
+// 定义一个内联函数 sse_signal，通过条件名称唤醒所有相同名称的条件任务
 inline void sse_signal(const std::string& cond_name)
 {
     WFTaskFactory::signal_by_name(cond_name, NULL);

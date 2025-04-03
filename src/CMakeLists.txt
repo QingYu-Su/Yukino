@@ -42,6 +42,13 @@ else ()
 endif()
 
 # ==========================
+#  处理 spdlog 依赖项
+# ==========================
+
+find_package(spdlog REQUIRED CONFIG)
+find_package(fmt REQUIRED CONFIG)
+
+# ==========================
 #  设置头文件搜索路径
 # ==========================
 
@@ -49,6 +56,8 @@ include_directories(
     ${OPENSSL_INCLUDE_DIR}          # OpenSSL 头文件目录
     ${CMAKE_CURRENT_SOURCE_DIR}     # 当前源代码目录
     ${WORKFLOW_INCLUDE_DIR}         # Workflow 头文件目录
+    ${spdlog_INCLUDE_DIRS}          # spdlog 头文件目录
+    ${fmt_INCLUDE_DIRS}             # fmt 头文件目录
     ${INC_DIR}/Yukino               # 项目自身的 `Yukino` 头文件
 )
 
@@ -60,7 +69,8 @@ include_directories(
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -Wall -fPIC -pipe -std=gnu90")
 
 # 设置 C++ 语言编译标志
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -pipe -std=c++11 -fno-exceptions")
+# 在workflow中，禁用了异常处理，但由于spdlog使用了异常处理，故去掉了“-fno-exceptions”参数
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -pipe -std=c++11")
 
 # ==========================
 #  添加子目录
@@ -114,7 +124,7 @@ else ()
     # 创建一个自定义目标 `SCRIPT_SHARED_LIB`，用于生成 `libYukino.so` 的依赖信息
     add_custom_target(
         SCRIPT_SHARED_LIB ALL
-        COMMAND ${CMAKE_COMMAND} -E echo 'GROUP ( libYukino.a AS_NEEDED ( libz.so libworkflow.so) ) ' > ${LIBSO}
+        COMMAND ${CMAKE_COMMAND} -E echo 'GROUP ( libYukino.a AS_NEEDED ( libz.so libworkflow.so libspdlog.so libfmt.so) ) ' > ${LIBSO}
     )
     add_dependencies(SCRIPT_SHARED_LIB ${PROJECT_NAME})  # 让 `SCRIPT_SHARED_LIB` 依赖 `Yukino` 库
 endif ()

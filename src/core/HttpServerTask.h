@@ -14,6 +14,8 @@ class HttpServer;
  * 
  * 该类继承自 WFServerTask<HttpReq, HttpResp> 并且是不可拷贝的（继承自 Noncopyable）。
  * 它封装了 HTTP 服务器任务的处理逻辑，包括请求处理、回调函数管理等。
+ * WFServerTask<HttpReq, HttpResp>继承了WFNetworkTask<HttpReq, HttpResp>，即HttpTask的子类
+ * 那么HttpServerTask也是HttpTask的子类
  */
 class HttpServerTask : public WFServerTask<HttpReq, HttpResp> , public Noncopyable
 {

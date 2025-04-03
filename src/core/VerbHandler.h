@@ -69,7 +69,7 @@ using WrapHandler = std::function<WFGoTask *(HttpReq *, HttpResp *, SeriesWork *
 struct VerbHandler
 {
     std::map<Verb, WrapHandler> verb_handler_map; // 动词到处理器的映射
-    StringPiece path;                            // 路径
+    StringPiece path;                            // 路由路径（服务端注册的路径）
     int compute_queue_id;                        // 计算队列 ID
 };
 

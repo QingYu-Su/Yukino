@@ -5,6 +5,7 @@
 #include "HttpMsg.h"
 #include "ErrorCode.h"
 #include "CodeUtil.h"
+#include "spdlog/spdlog.h" 
 
 using namespace Yukino;
 
@@ -18,7 +19,7 @@ void Router::handle(const std::string &route, int compute_queue_id, const WrapHa
     // 检查是否已经存在相同的HTTP请求方法
     if(vh.verb_handler_map.find(verb) != vh.verb_handler_map.end())
     {
-        fprintf(stderr, "Duplicate Verb\n");
+        spdlog::critical("[YUKINO] Duplicate Verb");
         return;
     }
 
@@ -53,7 +54,7 @@ int Router::call(Verb verb, const std::string &route, HttpServerTask *server_tas
         if(verb_handler_map.find(Verb::ANY) != verb_handler_map.end() or has_verb)
         {
             // 设置请求的完整路径、路由参数和匹配路径
-            req->set_full_path(it->second.path.as_string());
+            req->set_full_path(it->second.path.as_string());  //服务端注册的路径
             req->set_route_params(std::move(route_params));
             req->set_route_match_path(std::move(route_match_path));
             WFGoTask * go_task;
@@ -91,17 +92,17 @@ void Router::print_routes() const
             if (CodeUtil::is_url_encode(rv.route))
             {
                 // 如果路由路径是URL编码的，解码后打印
-                fprintf(stderr, "[YUKINO] %s\t%s\n", verb_to_str(verb), CodeUtil::url_decode(rv.route).c_str());
+                spdlog::info("[YUKINO] {0}: {1}", verb_to_str(verb), CodeUtil::url_decode(rv.route).c_str());
             } else
             {
                 // 直接打印路由路径
-                fprintf(stderr, "[YUKINO] %s\t%s\n", verb_to_str(verb), rv.route.c_str());
+                spdlog::info("[YUKINO] {0}: {1}", verb_to_str(verb), rv.route.c_str());
             }
         }
     }
 }
 
-// 获取所有路由及其对应的HTTP请求方法
+// 获取所有路由(叶子节点)及其对应的HTTP请求方法（first为请求方法，second为路由路径）
 std::vector<std::pair<std::string, std::string>> Router::all_routes() const
 {
     std::vector<std::pair<std::string, std::string>> res; // 用于存储结果

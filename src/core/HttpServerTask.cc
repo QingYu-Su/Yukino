@@ -31,6 +31,8 @@ HttpServerTask::HttpServerTask(CommService *service,
 }
 
 // 处理 HTTP 请求和响应的方法
+// 在这里主要分析HTTP请求中是否有Keep-Alive头部，然后调用父类接口
+// 如Keep-Alive: timeout=5, max=50
 void HttpServerTask::handle(int state, int error)
 {
     // 如果任务状态是 WFT_STATE_TOREPLY（需要回复客户端）
@@ -62,6 +64,7 @@ void HttpServerTask::handle(int state, int error)
     this->WFServerTask::handle(state, error);
 }
 
+// 在发送响应前，对响应做一些必须的设置，然后调用父类的发送接口
 CommMessageOut *HttpServerTask::message_out()
 {
     // 获取当前任务的 HTTP 响应对象

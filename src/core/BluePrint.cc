@@ -422,7 +422,7 @@ void BluePrint::add_blueprint(const BluePrint &bp, const std::string &url_prefix
             verb_list.push_back(vh_item.first); // 将 HTTP 方法添加到列表
         }
 
-        // 在当前 BluePrint 的路由表中添加路由
+        // 在当前 BluePrint 的路由表中添加路由方法
         std::pair<Router::RouteVerbIter, bool> rv_pair = this->router_.add_route(verb_list, path.c_str());
 
         // 获取或创建路由对应的 VerbHandler

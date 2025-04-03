@@ -13,13 +13,13 @@ namespace Yukino
 class StringPiece;
 
 /**
- * @brief 用于解析 URL 编码的 POST 请求体。
+ * @brief 用于解析application/x-www-form-urlencoded编码的 POST 请求体。
  */
 class Urlencode
 {
 public:
     /**
-     * @brief 解析 URL 编码的 POST 请求体为键值对。
+     * @brief 解析application/x-www-form-urlencoded编码的 POST 请求体为键值对。
      *
      * @param body 请求体内容。
      * @return std::map<std::string, std::string> 解析后的键值对。
@@ -27,8 +27,7 @@ public:
     static std::map<std::string, std::string> parse_post_kv(const StringPiece &body);
 };
 
-// <url id="cvgm8ugh8nju4lqmh7o0" type="url" status="parsed" title="POST - HTTP | MDN" wc="4981">https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST</url> 
-// <name ,<filename, body>>
+// 保存解析了multipart/form-data编码的POST请求体
 using Form = std::map<std::string, std::pair<std::string, std::string>>;
 
 /**

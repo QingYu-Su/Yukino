@@ -49,7 +49,9 @@ public:
                   std::map<std::string, std::string> &route_params,
                   std::string &route_match_path) const;
 
-    // 遍历所有路由并调用回调函数
+    // 遍历所有路由（叶子节点）并调用回调函数
+    // prefix为叶子节点的路径前缀（包括叶子节点的路径部分），通过递归不断叠加，最后通过func函数传递
+    // 注意，除非是“/”节点，否则所有节点获得前缀，都是没有最前面的根路径的，得到的都是如"abc/def"
     template<typename Func>
     void all_routes(const Func &func, std::string prefix) const;
 
@@ -110,7 +112,7 @@ public:
 
 private:
     RouteTableNode root_; // 根节点
-    std::set<StringPiece> string_pieces_;  // 检查是否存在
+    std::set<StringPiece> string_pieces_;  // 存储当前已注册的所有路径
 };
 
 } // namespace Yukino
